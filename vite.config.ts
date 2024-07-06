@@ -20,7 +20,13 @@ export default defineConfig(({ mode }) => ({
     },
   },
   ssr: {
-    noExternal: ['@analogjs/trpc', '@trpc/server', '@spartan-ng/**'],
+    noExternal: [
+      '@analogjs/trpc',
+      '@trpc/server',
+      '@spartan-ng/**',
+      '@ng-icons/**',
+      'ngx-scrollbar',
+    ],
   },
   plugins: [
     analog({
