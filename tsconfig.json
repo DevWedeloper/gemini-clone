@@ -38,6 +38,9 @@
       ],
       "@spartan-ng/ui-scrollarea-helm": [
         "./libs/ui/ui-scrollarea-helm/src/index.ts"
+      ],
+      "@spartan-ng/ui-sheet-helm": [
+        "./libs/ui/ui-sheet-helm/src/index.ts"
       ]
     }
   },
