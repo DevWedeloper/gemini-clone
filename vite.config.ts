@@ -20,14 +20,19 @@ export default defineConfig(({ mode }) => ({
     },
   },
   ssr: {
-    noExternal: [
-      '@analogjs/trpc',
-      '@trpc/server',
-      '@spartan-ng/**',
-      '@ng-icons/**',
-    ],
+    noExternal: ['@analogjs/trpc', '@trpc/server', '@spartan-ng/**'],
   },
-  plugins: [analog(), nxViteTsPaths(), splitVendorChunkPlugin()],
+  plugins: [
+    analog({
+      nitro: {
+        alias: {
+          src: path.resolve(__dirname, './src'),
+        },
+      },
+    }),
+    nxViteTsPaths(),
+    splitVendorChunkPlugin(),
+  ],
   test: {
     globals: true,
     environment: 'jsdom',
