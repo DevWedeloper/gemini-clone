@@ -7,7 +7,7 @@ import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
 import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
 import { take } from 'rxjs';
 import { injectTrpcClient } from 'src/trpc-client';
-import { GeminiService } from './gemini.service';
+import { GeminiService } from '../shared/gemini.service';
 
 @Component({
   selector: 'app-gemini',
