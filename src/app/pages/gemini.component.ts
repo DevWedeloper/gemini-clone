@@ -19,7 +19,9 @@ import { GeminiService } from './gemini.service';
     HlmIconComponent,
   ],
   providers: [provideIcons({ lucideBot })],
-  host: { class: 'flex min-h-[calc(100vh-3.5rem)] flex-col justify-between p-4' },
+  host: {
+    class: 'flex min-h-[calc(100vh-3.5rem)] flex-col justify-between p-4',
+  },
   template: `
     <div class="flex flex-col md:pb-9">
       @for (history of history(); track $index) {
@@ -46,7 +48,7 @@ import { GeminiService } from './gemini.service';
       <form
         [formGroup]="form"
         (ngSubmit)="sendMessage()"
-        class="relative overflow-hidden rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring"
+        class="relative overflow-hidden rounded-lg border border-border bg-background focus-within:ring-1 focus-within:ring-ring"
       >
         <label htmlFor="message" class="sr-only">Message</label>
         <textarea
