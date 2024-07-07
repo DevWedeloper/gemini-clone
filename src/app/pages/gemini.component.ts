@@ -19,7 +19,7 @@ import { GeminiService } from './gemini.service';
     HlmIconComponent,
   ],
   providers: [provideIcons({ lucideBot })],
-  host: { class: 'flex min-h-screen flex-col justify-between p-4' },
+  host: { class: 'flex min-h-[calc(100vh-3.5rem)] flex-col justify-between p-4' },
   template: `
     <div class="flex flex-col md:pb-9">
       @for (history of history(); track $index) {
