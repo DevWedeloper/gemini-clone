@@ -20,6 +20,9 @@ export default defineConfig(({ mode }) => ({
     },
   },
   ssr: {
+    optimizeDeps: {
+      include: ['isomorphic-fetch'],
+    },
     noExternal: [
       '@analogjs/trpc',
       '@trpc/server',
