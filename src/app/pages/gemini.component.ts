@@ -57,6 +57,7 @@ import { GeminiService } from './gemini.service';
           id="message"
           placeholder="Type your message here..."
           class="min-h-12 w-full resize-none border-0 p-3 shadow-none focus-visible:ring-0"
+          (keydown.enter)="handleTextareaEnter($event)"
         ></textarea>
         <div class="flex items-center p-3">
           <Button hlmBtn size="sm" class="ml-auto gap-1.5">Send Message</Button>
@@ -99,5 +100,10 @@ export class GeminiComponent {
         ]),
       );
     this.form.reset();
+  }
+
+  protected handleTextareaEnter(event: Event): void {
+    event.preventDefault();
+    if (this.form.valid) this.sendMessage();
   }
 }
