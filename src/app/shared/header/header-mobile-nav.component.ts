@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import { lucideMenu, lucideSquarePen } from '@ng-icons/lucide';
@@ -10,6 +10,7 @@ import {
   BrnSheetTriggerDirective,
 } from '@spartan-ng/ui-sheet-brain';
 import { HlmSheetImports } from '@spartan-ng/ui-sheet-helm';
+import { GeminiService } from '../gemini.service';
 import { SideNavContentComponent } from '../layout/side-nav/side-nav-content.component';
 
 @Component({
@@ -48,7 +49,7 @@ import { SideNavContentComponent } from '../layout/side-nav/side-nav-content.com
             <hlm-icon name="lucideMenu" class="h-5 w-5" />
             <span class="sr-only">Toggle sidebar visibility</span>
           </button>
-          <button size="sm" variant="ghost" hlmBtn>
+          <button size="sm" variant="ghost" (click)="selectedPromptId.set(null)">
             <hlm-icon name="lucideSquarePen" class="h-5 w-5" />
             <span class="sr-only">Create a new prompt</span>
           </button>
@@ -62,4 +63,6 @@ import { SideNavContentComponent } from '../layout/side-nav/side-nav-content.com
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HeaderMobileNavComponent {}
+export class HeaderMobileNavComponent {
+  protected selectedPromptId = inject(GeminiService).selectedPromptId;
+}
