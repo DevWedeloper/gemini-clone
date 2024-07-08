@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  inject,
   input,
   signal,
 } from '@angular/core';
@@ -12,6 +13,7 @@ import { hlm } from '@spartan-ng/ui-core';
 import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
 import { HlmScrollAreaComponent } from '@spartan-ng/ui-scrollarea-helm';
 import { ClassValue } from 'clsx';
+import { GeminiService } from '../../gemini.service';
 import { SideNavContentComponent } from './side-nav-content.component';
 
 export const toggleSideNav = signal(true);
@@ -41,7 +43,7 @@ export const toggleSideNav = signal(true);
           <hlm-icon name="lucideMenu" class="h-5 w-5" />
           <span class="sr-only">Toggle sidebar visibility</span>
         </button>
-        <button size="sm" variant="ghost" hlmBtn>
+        <button size="sm" variant="ghost" hlmBtn (click)="selectedPromptId.set(null)">
           <hlm-icon name="lucideSquarePen" class="h-5 w-5" />
           <span class="sr-only">Create a new prompt</span>
         </button>
@@ -52,6 +54,8 @@ export const toggleSideNav = signal(true);
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SideNavComponent {
+  protected selectedPromptId = inject(GeminiService).selectedPromptId;
+
   protected toggleSideNav = toggleSideNav;
 
   userClass = input<ClassValue>('', { alias: 'class' });
