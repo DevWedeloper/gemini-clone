@@ -6,14 +6,11 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { provideIcons } from '@ng-icons/core';
-import { lucideMenu, lucideSquarePen } from '@ng-icons/lucide';
-import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import { hlm } from '@spartan-ng/ui-core';
-import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
 import { HlmScrollAreaComponent } from '@spartan-ng/ui-scrollarea-helm';
 import { ClassValue } from 'clsx';
 import { GeminiService } from '../../gemini.service';
+import { SideNavActionsComponent } from './side-nav-actions.component';
 import { SideNavContentComponent } from './side-nav-content.component';
 
 export const toggleSideNav = signal(true);
@@ -23,31 +20,18 @@ export const toggleSideNav = signal(true);
   standalone: true,
   imports: [
     SideNavContentComponent,
+    SideNavActionsComponent,
     HlmScrollAreaComponent,
-    HlmButtonDirective,
-    HlmIconComponent,
   ],
-  providers: [provideIcons({ lucideMenu, lucideSquarePen })],
   host: {
     '[class]': 'computedClass()',
   },
   template: `
     <hlm-scroll-area visibility="hover" class="h-screen">
-      <div class="flex h-14 justify-between py-2">
-        <button
-          size="sm"
-          variant="ghost"
-          hlmBtn
-          (click)="toggleSideNav.set(!toggleSideNav())"
-        >
-          <hlm-icon name="lucideMenu" class="h-5 w-5" />
-          <span class="sr-only">Toggle sidebar visibility</span>
-        </button>
-        <button size="sm" variant="ghost" hlmBtn (click)="selectedPromptId.set(null)">
-          <hlm-icon name="lucideSquarePen" class="h-5 w-5" />
-          <span class="sr-only">Create a new prompt</span>
-        </button>
-      </div>
+      <app-side-nav-actions
+        (menuClicked)="toggleSideNav.set(!toggleSideNav())"
+        (newPromptClicked)="selectedPromptId.set(null)"
+      />
       <app-side-nav-content />
     </hlm-scroll-area>
   `,
