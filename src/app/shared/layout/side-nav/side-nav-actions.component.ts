@@ -14,11 +14,11 @@ import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
   },
   template: `
     <button size="sm" variant="ghost" hlmBtn (click)="menuClicked.emit()">
-      <hlm-icon name="lucideMenu" class="h-5 w-5" />
+      <hlm-icon name="lucideMenu" size="sm" />
       <span class="sr-only">Toggle sidebar visibility</span>
     </button>
     <button size="sm" variant="ghost" hlmBtn (click)="newPromptClicked.emit()">
-      <hlm-icon name="lucideSquarePen" class="h-5 w-5" />
+      <hlm-icon name="lucideSquarePen" size="sm" />
       <span class="sr-only">Create a new prompt</span>
     </button>
   `,
