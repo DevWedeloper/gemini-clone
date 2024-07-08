@@ -78,7 +78,9 @@ export class GeminiComponent {
 
   protected handleTextareaEnter(event: Event): void {
     event.preventDefault();
-    if (this.form.valid) this.sendMessage();
+    if (this.form.valid && this.form.controls.message.value) {
+      this.sendMessage();
+    }
   }
 
   protected sendMessage(): void {
