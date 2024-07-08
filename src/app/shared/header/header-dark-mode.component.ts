@@ -21,7 +21,6 @@ import { DarkMode, ThemeService } from '../theme.service';
   providers: [provideIcons({ lucideMoon })],
   template: `
     <button
-      data-testingId="menu-trigger"
       size="sm"
       variant="ghost"
       align="end"
