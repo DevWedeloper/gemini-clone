@@ -1,9 +1,86 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { Content } from '@google/generative-ai';
+import { take } from 'rxjs';
+import { injectTrpcClient } from 'src/trpc-client';
+
+export type PromptHistory = {
+  id: number;
+  title: string;
+  content: Content[];
+};
 
 @Injectable({
   providedIn: 'root',
 })
 export class GeminiService {
-  history = signal<Content[]>([]);
+  private _trpc = injectTrpcClient();
+
+  promptHistory = signal<PromptHistory[]>([]);
+  selectedPromptId = signal<number | null>(null);
+  selectedPrompt = computed(() =>
+    this.promptHistory().find(
+      (history) => history.id === this.selectedPromptId(),
+    ),
+  );
+  generateId = signal(0);
+
+  sendMessage(message: string): void {
+    let generateIdFlag = false;
+    if (this.selectedPromptId() === null) {
+      this.promptHistory.update((state) => [
+        ...state,
+        {
+          id: this.generateId(),
+          title: message,
+          content: [this.userPrompt(message)],
+        },
+      ]);
+      this.selectedPromptId.set(this.generateId());
+      generateIdFlag = true;
+    } else if (this.selectedPrompt()) {
+      this.promptHistory.update((state) =>
+        this.updatePromptHistoryWithPrompt(state, this.userPrompt(message)),
+      );
+    }
+    this._trpc.gemini.chat
+      .mutate({
+        chat: message,
+        history: this.selectedPrompt()?.content || [],
+      })
+      .pipe(take(1))
+      .subscribe((data) => {
+        this.promptHistory.update((state) =>
+          this.updatePromptHistoryWithPrompt(state, this.modelPrompt(data)),
+        );
+        if (generateIdFlag) this.generateId.update((state) => state + 1);
+      });
+  }
+
+  private userPrompt(message: string): Content {
+    return {
+      role: 'user',
+      parts: [{ text: message }],
+    };
+  }
+
+  private modelPrompt(data: string): Content {
+    return {
+      role: 'model',
+      parts: [{ text: data }],
+    };
+  }
+
+  private updatePromptHistoryWithPrompt(
+    promptHistory: PromptHistory[],
+    prompt: Content,
+  ): PromptHistory[] {
+    return promptHistory.map((history) =>
+      history.id === this.selectedPrompt()?.id
+        ? {
+            ...history,
+            content: [...history.content, prompt],
+          }
+        : history,
+    );
+  }
 }

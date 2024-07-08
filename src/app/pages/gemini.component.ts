@@ -5,8 +5,6 @@ import { lucideBot } from '@ng-icons/lucide';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
 import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
-import { take } from 'rxjs';
-import { injectTrpcClient } from 'src/trpc-client';
 import { GeminiService } from '../shared/gemini.service';
 
 @Component({
@@ -24,7 +22,7 @@ import { GeminiService } from '../shared/gemini.service';
   },
   template: `
     <div class="flex flex-col md:pb-9">
-      @for (history of history(); track $index) {
+      @for (history of selectedPrompt()?.content; track $index) {
         @if (history.role === 'user') {
           <div class="flex justify-end py-2">
             @for (part of history.parts; track $index) {
@@ -42,6 +40,8 @@ import { GeminiService } from '../shared/gemini.service';
             }
           </div>
         }
+      } @empty {
+        <p>No messages yet.</p>
       }
     </div>
     <div class="sticky bottom-0">
@@ -68,42 +68,21 @@ import { GeminiService } from '../shared/gemini.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeminiComponent {
-  private _trpc = injectTrpcClient();
   private fb = inject(FormBuilder);
-  protected history = inject(GeminiService).history;
+  private geminiService = inject(GeminiService);
+  protected selectedPrompt = this.geminiService.selectedPrompt;
 
   protected form = this.fb.nonNullable.group({
     message: '',
   });
 
-  protected sendMessage() {
-    this.history.update((state) => [
-      ...state,
-      {
-        role: 'user',
-        parts: [{ text: this.form.getRawValue().message }],
-      },
-    ]);
-    this._trpc.gemini.chat
-      .mutate({
-        chat: this.form.getRawValue().message,
-        history: this.history(),
-      })
-      .pipe(take(1))
-      .subscribe((data) =>
-        this.history.update((state) => [
-          ...state,
-          {
-            role: 'model',
-            parts: [{ text: data }],
-          },
-        ]),
-      );
-    this.form.reset();
-  }
-
   protected handleTextareaEnter(event: Event): void {
     event.preventDefault();
     if (this.form.valid) this.sendMessage();
+  }
+
+  protected sendMessage(): void {
+    this.geminiService.sendMessage(this.form.getRawValue().message);
+    this.form.reset();
   }
 }
