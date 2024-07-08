@@ -27,9 +27,9 @@ import { HeaderMobileNavComponent } from './header-mobile-nav.component';
         variant="ghost"
         hlmBtn
         (click)="toggleSideNav.set(!toggleSideNav())"
-        class="hidden md:block"
+        class="hidden md:inline"
       >
-        <hlm-icon name="lucideMenu" class="h-5 w-5" />
+        <hlm-icon name="lucideMenu" size="sm" />
         <span class="sr-only">Toggle sidebar visibility</span>
       </button>
     }
