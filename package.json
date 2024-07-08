@@ -30,6 +30,7 @@
     "@angular/router": "^18.0.0",
     "@google/generative-ai": "^0.14.1",
     "@ng-icons/core": "^25.1.0",
+    "@ng-icons/ionicons": "^28.1.0",
     "@ng-icons/lucide": "^28.1.0",
     "@spartan-ng/ui-core": "^0.0.1-alpha.352",
     "@spartan-ng/ui-dialog-brain": "0.0.1-alpha.352",
