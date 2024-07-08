@@ -49,7 +49,12 @@ import { SideNavContentComponent } from '../layout/side-nav/side-nav-content.com
             <hlm-icon name="lucideMenu" class="h-5 w-5" />
             <span class="sr-only">Toggle sidebar visibility</span>
           </button>
-          <button size="sm" variant="ghost" (click)="selectedPromptId.set(null)">
+          <button
+            size="sm"
+            variant="ghost"
+            hlmBtn
+            (click)="selectedPromptId.set(null)"
+          >
             <hlm-icon name="lucideSquarePen" class="h-5 w-5" />
             <span class="sr-only">Create a new prompt</span>
           </button>
