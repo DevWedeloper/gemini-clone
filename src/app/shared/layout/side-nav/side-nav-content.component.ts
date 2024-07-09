@@ -48,7 +48,7 @@ import { DeletePromptComponent } from './prompt-options/delete-prompt/delete-pro
   },
   template: `
     @for (history of promptHistory(); track history.id) {
-      @if (inlineEdit() && history.id === selectedPromptId()) {
+      @if (displayInlineEdit(history.id)) {
         <input
           #prompt
           hlmInput
@@ -94,7 +94,7 @@ import { DeletePromptComponent } from './prompt-options/delete-prompt/delete-pro
             variant="ghost"
             hlmBtn
             class="flex w-full justify-start"
-            (click)="inlineEdit.set(true)"
+            (click)="inlineEditId.set(history.id)"
           >
             <hlm-icon name="lucidePencil" size="sm" class="mr-2" />
             Rename
@@ -129,7 +129,7 @@ export class SideNavContentComponent {
 
   protected menuState = signal(false);
 
-  protected inlineEdit = signal(false);
+  protected inlineEditId = signal<number | null>(null);
 
   protected handleClick(id: number): void {
     this.selectedPromptId.set(id);
@@ -137,7 +137,11 @@ export class SideNavContentComponent {
   }
 
   protected displayOptions(id: number): boolean {
-    return this.selectedPromptId() === id || this.menuState();
+    return this.selectedPromptId() === id && this.menuState();
+  }
+
+  protected displayInlineEdit(id: number): boolean {
+    return this.inlineEditId() === id;
   }
 
   protected openDeleteDialog(id: number, title: string): void {
@@ -149,6 +153,6 @@ export class SideNavContentComponent {
 
   protected handlePromptTitleEdit(id: number, title: string): void {
     this.editPromptTitle(id, title);
-    this.inlineEdit.set(false);
+    this.inlineEditId.set(null);
   }
 }
