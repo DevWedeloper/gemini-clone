@@ -55,6 +55,7 @@ import { DeletePromptComponent } from './prompt-options/delete-prompt/delete-pro
           type="text"
           [value]="history.title"
           (focusout)="handlePromptTitleEdit(history.id, prompt.value)"
+          (keydown.enter)="handlePromptTitleEdit(history.id, prompt.value)"
         />
       } @else {
         <div class="group relative">
