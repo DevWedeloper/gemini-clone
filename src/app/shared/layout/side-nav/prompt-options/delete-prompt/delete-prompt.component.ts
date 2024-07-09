@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
-import { injectBrnDialogContext } from '@spartan-ng/ui-dialog-brain';
+import {
+  BrnDialogRef,
+  injectBrnDialogContext,
+} from '@spartan-ng/ui-dialog-brain';
 import {
   HlmDialogDescriptionDirective,
   HlmDialogFooterComponent,
@@ -31,16 +34,28 @@ import {
       </p>
     </hlm-dialog-header>
     <hlm-dialog-footer>
-      <button hlmBtn variant="destructive" class="mt-2">Delete</button>
+      <button
+        hlmBtn
+        variant="destructive"
+        class="mt-2"
+        (click)="deletePrompt()"
+      >
+        Delete
+      </button>
     </hlm-dialog-footer>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeletePromptComponent {
+  private _dialogRef = inject(BrnDialogRef);
   private _dialogContext = injectBrnDialogContext<{
     id: number;
     title: string;
   }>();
   protected id = this._dialogContext.id;
   protected title = this._dialogContext.title;
+
+  protected deletePrompt(): void {
+    this._dialogRef.close();
+  }
 }
