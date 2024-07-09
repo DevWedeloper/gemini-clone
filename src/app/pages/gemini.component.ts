@@ -22,20 +22,20 @@ import { GeminiService } from '../shared/gemini.service';
   },
   template: `
     <div class="flex flex-col md:pb-9">
-      @for (history of selectedPrompt()?.content; track $index) {
-        @if (history.role === 'user') {
+      @for (prompt of selectedPrompt()?.content; track $index) {
+        @if (prompt.role === 'user') {
           <div class="flex justify-end py-2">
-            @for (part of history.parts; track $index) {
+            @for (part of prompt.parts; track $index) {
               <p class="rounded-lg bg-accent px-5 py-2.5">{{ part.text }}</p>
             }
           </div>
         }
-        @if (history.role === 'model') {
+        @if (prompt.role === 'model') {
           <div class="flex gap-5 py-2">
             <div class="flex h-8 w-8 justify-center">
               <hlm-icon name="lucideBot" />
             </div>
-            @for (part of history.parts; track $index) {
+            @for (part of prompt.parts; track $index) {
               <p>{{ part.text }}</p>
             }
           </div>
