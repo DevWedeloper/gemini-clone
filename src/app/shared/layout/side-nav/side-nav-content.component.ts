@@ -13,7 +13,13 @@ import { lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import { HlmDialogService } from '@spartan-ng/ui-dialog-helm';
 import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
+import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
 import { HlmMenuComponent, HlmMenuImports } from '@spartan-ng/ui-menu-helm';
+import { BrnTooltipContentDirective } from '@spartan-ng/ui-tooltip-brain';
+import {
+  HlmTooltipComponent,
+  HlmTooltipTriggerDirective,
+} from '@spartan-ng/ui-tooltip-helm';
 import { GeminiService } from '../../gemini.service';
 import { DeletePromptComponent } from './prompt-options/delete-prompt/delete-prompt.component';
 
@@ -23,12 +29,16 @@ import { DeletePromptComponent } from './prompt-options/delete-prompt/delete-pro
   imports: [
     NgClass,
     HlmButtonDirective,
+    HlmInputDirective,
     HlmIconComponent,
     CdkMenuTrigger,
     HlmMenuImports,
     HlmButtonDirective,
     HlmIconComponent,
     HlmMenuComponent,
+    HlmTooltipComponent,
+    HlmTooltipTriggerDirective,
+    BrnTooltipContentDirective,
   ],
   providers: [
     provideIcons({ ionEllipsisHorizontal, lucidePencil, lucideTrash2 }),
@@ -38,29 +48,43 @@ import { DeletePromptComponent } from './prompt-options/delete-prompt/delete-pro
   },
   template: `
     @for (history of promptHistory(); track history.id) {
-      <div class="group relative">
-        <button
-          hlmBtn
-          variant="link"
-          class="flex w-full justify-start p-2 hover:bg-accent hover:no-underline"
-          (click)="handleClick(history.id)"
-        >
-          {{ history.title }}
-        </button>
-        <button
-          size="sm"
-          variant="ghost"
-          hlmBtn
-          [cdkMenuTriggerFor]="optionsTpl"
-          class="absolute right-0 top-1/2 w-fit -translate-y-1/2 group-hover:inline-flex"
-          [ngClass]="displayOptions(history.id) ? 'inline-flex' : 'hidden'"
-          (cdkMenuOpened)="menuState.set(true)"
-          (cdkMenuClosed)="menuState.set(false)"
-        >
-          <hlm-icon name="ionEllipsisHorizontal" size="sm" />
-          <span class="sr-only">Open options</span>
-        </button>
-      </div>
+      @if (inlineEdit() && history.id === selectedPromptId()) {
+        <input
+          #prompt
+          hlmInput
+          type="text"
+          [value]="history.title"
+          (focusout)="handlePromptTitleEdit(history.id, prompt.value)"
+        />
+      } @else {
+        <div class="group relative">
+          <button
+            hlmBtn
+            variant="link"
+            class="flex w-full justify-start p-2 hover:bg-accent hover:no-underline"
+            (click)="handleClick(history.id)"
+          >
+            {{ history.title }}
+          </button>
+          <hlm-tooltip>
+            <button
+              size="sm"
+              variant="ghost"
+              hlmBtn
+              [cdkMenuTriggerFor]="optionsTpl"
+              class="absolute right-0 top-1/2 w-fit -translate-y-1/2 group-hover:inline-flex"
+              [ngClass]="displayOptions(history.id) ? 'inline-flex' : 'hidden'"
+              (cdkMenuOpened)="menuState.set(true)"
+              (cdkMenuClosed)="menuState.set(false)"
+              hlmTooltipTrigger
+            >
+              <hlm-icon name="ionEllipsisHorizontal" size="sm" />
+              <span class="sr-only">Open options</span>
+            </button>
+            <span *brnTooltipContent>Options</span>
+          </hlm-tooltip>
+        </div>
+      }
       <ng-template #optionsTpl>
         <hlm-menu class="w-40">
           <button
@@ -69,6 +93,7 @@ import { DeletePromptComponent } from './prompt-options/delete-prompt/delete-pro
             variant="ghost"
             hlmBtn
             class="flex w-full justify-start"
+            (click)="inlineEdit.set(true)"
           >
             <hlm-icon name="lucidePencil" size="sm" class="mr-2" />
             Rename
@@ -99,8 +124,11 @@ export class SideNavContentComponent {
   private geminiService = inject(GeminiService);
   protected promptHistory = this.geminiService.promptHistory;
   private selectedPromptId = this.geminiService.selectedPromptId;
+  private editPromptTitle = this.geminiService.editPromptTitle;
 
   protected menuState = signal(false);
+
+  protected inlineEdit = signal(false);
 
   protected handleClick(id: number): void {
     this.selectedPromptId.set(id);
@@ -116,5 +144,10 @@ export class SideNavContentComponent {
       context: { id, title },
       contentClass: 'flex',
     });
+  }
+
+  protected handlePromptTitleEdit(id: number, title: string): void {
+    this.editPromptTitle(id, title);
+    this.inlineEdit.set(false);
   }
 }

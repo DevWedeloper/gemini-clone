@@ -63,6 +63,14 @@ export class GeminiService {
     this.selectedPromptId.set(null);
   }
 
+  editPromptTitle(id: number, title: string): void {
+    this.promptHistory.update((state) =>
+      state.map((history) =>
+        history.id === id ? { ...history, title } : history,
+      ),
+    );
+  }
+
   private userPrompt(message: string): Content {
     return {
       role: 'user',
