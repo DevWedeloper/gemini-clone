@@ -24,7 +24,11 @@ import {
   template: `
     <hlm-dialog-header>
       <h3 hlmDialogTitle>Delete chat?</h3>
-      <p hlmDialogDescription>This will delete {{ title }}.</p>
+      <p hlmDialogDescription>
+        This will delete
+        <strong class="font-bold">{{ title }}</strong>
+        .
+      </p>
     </hlm-dialog-header>
     <hlm-dialog-footer>
       <button hlmBtn variant="destructive" class="mt-2">Delete</button>
