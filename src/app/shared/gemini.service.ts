@@ -3,7 +3,7 @@ import { Content } from '@google/generative-ai';
 import { take } from 'rxjs';
 import { injectTrpcClient } from 'src/trpc-client';
 
-export type PromptHistory = {
+type PromptHistory = {
   id: number;
   title: string;
   content: Content[];
