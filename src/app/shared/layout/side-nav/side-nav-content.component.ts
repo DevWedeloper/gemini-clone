@@ -3,9 +3,12 @@ import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
+  ElementRef,
   inject,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { provideIcons } from '@ng-icons/core';
 import { ionEllipsisHorizontal } from '@ng-icons/ionicons';
@@ -131,6 +134,14 @@ export class SideNavContentComponent {
   protected menuState = signal(false);
 
   protected inlineEditId = signal<number | null>(null);
+
+  private prompt = viewChild<ElementRef<HTMLInputElement>>('prompt');
+
+  constructor() {
+    effect(() => {
+      this.prompt()?.nativeElement.focus();
+    });
+  }
 
   protected handleClick(id: number): void {
     this.selectedPromptId.set(id);
