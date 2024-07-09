@@ -33,7 +33,6 @@ import { DarkMode, ThemeService } from '../theme.service';
     <ng-template #themeTpl>
       <hlm-menu class="w-40">
         <button
-          data-testingId="light"
           hlmMenuItemCheckbox
           [checked]="theme() === 'light'"
           (click)="setTheme('light')"
@@ -42,7 +41,6 @@ import { DarkMode, ThemeService } from '../theme.service';
           Light
         </button>
         <button
-          data-testingId="dark"
           hlmMenuItemCheckbox
           [checked]="theme() === 'dark'"
           (click)="setTheme('dark')"
@@ -51,7 +49,6 @@ import { DarkMode, ThemeService } from '../theme.service';
           Dark
         </button>
         <button
-          data-testingId="system"
           hlmMenuItemCheckbox
           [checked]="theme() === 'system'"
           (click)="setTheme('system')"
