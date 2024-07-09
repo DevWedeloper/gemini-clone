@@ -77,6 +77,7 @@ import { DeletePromptComponent } from './prompt-options/delete-prompt/delete-pro
               (cdkMenuOpened)="menuState.set(true)"
               (cdkMenuClosed)="menuState.set(false)"
               hlmTooltipTrigger
+              aria-describedby="Options"
             >
               <hlm-icon name="ionEllipsisHorizontal" size="sm" />
               <span class="sr-only">Open options</span>
