@@ -11,9 +11,11 @@ import { provideIcons } from '@ng-icons/core';
 import { ionEllipsisHorizontal } from '@ng-icons/ionicons';
 import { lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
+import { HlmDialogService } from '@spartan-ng/ui-dialog-helm';
 import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
 import { HlmMenuComponent, HlmMenuImports } from '@spartan-ng/ui-menu-helm';
 import { GeminiService } from '../../gemini.service';
+import { DeletePromptComponent } from './prompt-options/delete-prompt/delete-prompt.component';
 
 @Component({
   selector: 'app-side-nav-content',
@@ -59,39 +61,41 @@ import { GeminiService } from '../../gemini.service';
           <span class="sr-only">Open options</span>
         </button>
       </div>
+      <ng-template #optionsTpl>
+        <hlm-menu class="w-40">
+          <button
+            hlmMenuItem
+            size="sm"
+            variant="ghost"
+            hlmBtn
+            class="flex w-full justify-start"
+          >
+            <hlm-icon name="lucidePencil" size="sm" class="mr-2" />
+            Rename
+          </button>
+          <button
+            hlmMenuItem
+            size="sm"
+            variant="ghost"
+            hlmBtn
+            class="flex w-full justify-start text-red-500 hover:text-red-500"
+            (click)="openDeleteDialog(history.id, history.title)"
+          >
+            <hlm-icon name="lucideTrash2" size="sm" class="mr-2" />
+            Delete
+          </button>
+        </hlm-menu>
+      </ng-template>
     } @empty {
       <p>No messages yet.</p>
     }
-    <ng-template #optionsTpl>
-      <hlm-menu class="w-40">
-        <button
-          hlmMenuItem
-          size="sm"
-          variant="ghost"
-          hlmBtn
-          class="flex w-full justify-start"
-        >
-          <hlm-icon name="lucidePencil" size="sm" class="mr-2" />
-          Rename
-        </button>
-        <button
-          hlmMenuItem
-          size="sm"
-          variant="ghost"
-          hlmBtn
-          class="flex w-full justify-start text-red-500 hover:text-red-500"
-        >
-          <hlm-icon name="lucideTrash2" size="sm" class="mr-2" />
-          Delete
-        </button>
-      </hlm-menu>
-    </ng-template>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SideNavContentComponent {
   promptClicked = output();
 
+  private _hlmDialogService = inject(HlmDialogService);
   private geminiService = inject(GeminiService);
   protected promptHistory = this.geminiService.promptHistory;
   protected selectedPromptId = this.geminiService.selectedPromptId;
@@ -105,5 +109,12 @@ export class SideNavContentComponent {
 
   protected displayOptions(id: number): boolean {
     return this.selectedPromptId() === id || this.menuState();
+  }
+
+  protected openDeleteDialog(id: number, title: string): void {
+    this._hlmDialogService.open(DeletePromptComponent, {
+      context: { id, title },
+      contentClass: 'flex',
+    });
   }
 }
