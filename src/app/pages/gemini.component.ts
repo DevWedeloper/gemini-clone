@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
 import { lucideBot } from '@ng-icons/lucide';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
@@ -60,7 +60,14 @@ import { GeminiService } from '../shared/gemini.service';
           (keydown.enter)="handleTextareaEnter($event)"
         ></textarea>
         <div class="flex items-center p-3">
-          <button hlmBtn size="sm" class="ml-auto gap-1.5">Send Message</button>
+          <button
+            hlmBtn
+            size="sm"
+            class="ml-auto gap-1.5"
+            [disabled]="form.invalid"
+          >
+            Send Message
+          </button>
         </div>
       </form>
     </div>
@@ -73,7 +80,7 @@ export class GeminiComponent {
   protected selectedPrompt = this.geminiService.selectedPrompt;
 
   protected form = this.fb.nonNullable.group({
-    message: '',
+    message: ['', Validators.required],
   });
 
   protected handleTextareaEnter(event: Event): void {
