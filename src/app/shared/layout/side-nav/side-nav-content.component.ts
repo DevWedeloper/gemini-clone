@@ -98,7 +98,7 @@ export class SideNavContentComponent {
   private _hlmDialogService = inject(HlmDialogService);
   private geminiService = inject(GeminiService);
   protected promptHistory = this.geminiService.promptHistory;
-  protected selectedPromptId = this.geminiService.selectedPromptId;
+  private selectedPromptId = this.geminiService.selectedPromptId;
 
   protected menuState = signal(false);
 
