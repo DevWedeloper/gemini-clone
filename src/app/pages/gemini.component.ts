@@ -60,7 +60,7 @@ import { GeminiService } from '../shared/gemini.service';
           (keydown.enter)="handleTextareaEnter($event)"
         ></textarea>
         <div class="flex items-center p-3">
-          <Button hlmBtn size="sm" class="ml-auto gap-1.5">Send Message</Button>
+          <button hlmBtn size="sm" class="ml-auto gap-1.5">Send Message</button>
         </div>
       </form>
     </div>
