@@ -10,6 +10,7 @@ import {
   HlmDialogHeaderComponent,
   HlmDialogTitleDirective,
 } from '@spartan-ng/ui-dialog-helm';
+import { GeminiService } from 'src/app/shared/gemini.service';
 
 @Component({
   selector: 'app-delete-prompt',
@@ -55,7 +56,10 @@ export class DeletePromptComponent {
   protected id = this._dialogContext.id;
   protected title = this._dialogContext.title;
 
+  private geminiService = inject(GeminiService);
+
   protected deletePrompt(): void {
+    this.geminiService.deletePrompt(this.id);
     this._dialogRef.close();
   }
 }

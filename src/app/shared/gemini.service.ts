@@ -56,6 +56,13 @@ export class GeminiService {
       });
   }
 
+  deletePrompt(id: number): void {
+    this.promptHistory.update((state) =>
+      state.filter((history) => history.id !== id),
+    );
+    this.selectedPromptId.set(null);
+  }
+
   private userPrompt(message: string): Content {
     return {
       role: 'user',
