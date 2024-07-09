@@ -68,7 +68,9 @@ import { DeletePromptComponent } from './prompt-options/delete-prompt/delete-pro
             class="flex w-full justify-start p-2 hover:bg-accent hover:no-underline"
             (click)="handleClick(history.id)"
           >
-            {{ history.title }}
+            <span class="truncate">
+              {{ history.title }}
+            </span>
           </button>
           <hlm-tooltip>
             <button

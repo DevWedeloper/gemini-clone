@@ -5,6 +5,7 @@ import {
   inject,
   input,
   signal,
+  ViewEncapsulation,
 } from '@angular/core';
 import { hlm } from '@spartan-ng/ui-core';
 import { HlmScrollAreaComponent } from '@spartan-ng/ui-scrollarea-helm';
@@ -35,7 +36,15 @@ export const toggleSideNav = signal(true);
       <app-side-nav-content />
     </hlm-scroll-area>
   `,
+  styles: [
+    `
+      hlm-scroll-area .ng-scroll-content {
+        display: inline;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
 })
 export class SideNavComponent {
   protected selectedPromptId = inject(GeminiService).selectedPromptId;
