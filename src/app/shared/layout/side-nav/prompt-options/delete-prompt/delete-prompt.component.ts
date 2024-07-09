@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import { injectBrnDialogContext } from '@spartan-ng/ui-dialog-brain';
 import {
-  HlmDialogContentComponent,
   HlmDialogDescriptionDirective,
   HlmDialogFooterComponent,
   HlmDialogHeaderComponent,
@@ -14,7 +13,6 @@ import {
   standalone: true,
   imports: [
     HlmButtonDirective,
-    HlmDialogContentComponent,
     HlmDialogHeaderComponent,
     HlmDialogFooterComponent,
     HlmDialogTitleDirective,
