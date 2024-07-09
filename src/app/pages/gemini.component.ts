@@ -91,7 +91,10 @@ export class GeminiComponent {
   }
 
   protected sendMessage(): void {
-    this.geminiService.sendMessage(this.form.getRawValue().message);
+    this.geminiService.sendMessage(
+      this.selectedPrompt()?.id || null,
+      this.form.getRawValue().message,
+    );
     this.form.reset();
   }
 }

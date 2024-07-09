@@ -24,7 +24,7 @@ export class GeminiService {
   );
   generateId = signal(0);
 
-  sendMessage(message: string): void {
+  sendMessage(id: number | null, message: string): void {
     let generateIdFlag = false;
     if (this.selectedPromptId() === null) {
       this.promptHistory.update((state) => [
@@ -39,7 +39,11 @@ export class GeminiService {
       generateIdFlag = true;
     } else if (this.selectedPrompt()) {
       this.promptHistory.update((state) =>
-        this.updatePromptHistoryWithPrompt(state, this.userPrompt(message)),
+        this.updatePromptHistoryWithPrompt(
+          state,
+          this.userPrompt(message),
+          id || this.generateId(),
+        ),
       );
     }
     this._trpc.gemini.chat
@@ -50,7 +54,11 @@ export class GeminiService {
       .pipe(take(1))
       .subscribe((data) => {
         this.promptHistory.update((state) =>
-          this.updatePromptHistoryWithPrompt(state, this.modelPrompt(data)),
+          this.updatePromptHistoryWithPrompt(
+            state,
+            this.modelPrompt(data),
+            id || this.generateId(),
+          ),
         );
         if (generateIdFlag) this.generateId.update((state) => state + 1);
       });
@@ -88,9 +96,10 @@ export class GeminiService {
   private updatePromptHistoryWithPrompt(
     promptHistory: PromptHistory[],
     prompt: Content,
+    id: number,
   ): PromptHistory[] {
     return promptHistory.map((history) =>
-      history.id === this.selectedPrompt()?.id
+      history.id === id
         ? {
             ...history,
             content: [...history.content, prompt],
