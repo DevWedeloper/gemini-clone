@@ -35,7 +35,7 @@ import { GeminiService } from '../../gemini.service';
     class: 'flex flex-col',
   },
   template: `
-    @for (history of promptHistory(); track $index) {
+    @for (history of promptHistory(); track history.id) {
       <div class="group relative">
         <button
           hlmBtn
