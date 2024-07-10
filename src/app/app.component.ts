@@ -31,7 +31,7 @@ export class AppComponent {
       ? 'md:grid-cols-[220px_minmax(0,1fr)] lg:grid-cols-[240px_minmax(0,1fr)]'
       : 'md:grid-cols-[0_1fr]';
     return hlm(
-      'grid w-full grid-cols-none items-start transition-all ease-in-out md:grid',
+      'grid w-full grid-cols-none items-start transition-all ease-in-out',
       gridCols,
     );
   });
