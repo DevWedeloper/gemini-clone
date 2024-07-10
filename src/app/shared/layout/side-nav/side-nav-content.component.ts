@@ -3,12 +3,9 @@ import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  effect,
-  ElementRef,
   inject,
   output,
   signal,
-  viewChild,
 } from '@angular/core';
 import { provideIcons } from '@ng-icons/core';
 import { ionEllipsisHorizontal } from '@ng-icons/ionicons';
@@ -16,7 +13,6 @@ import { lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import { HlmDialogService } from '@spartan-ng/ui-dialog-helm';
 import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
-import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
 import { HlmMenuComponent, HlmMenuImports } from '@spartan-ng/ui-menu-helm';
 import { BrnTooltipContentDirective } from '@spartan-ng/ui-tooltip-brain';
 import {
@@ -25,14 +21,17 @@ import {
 } from '@spartan-ng/ui-tooltip-helm';
 import { GeminiService } from '../../gemini.service';
 import { DeletePromptComponent } from './prompt-options/delete-prompt/delete-prompt.component';
+import { EditPromptTitleComponent } from './prompt-options/edit-prompt-title/edit-prompt-title.component';
+
+export const inlineEditId = signal<number | null>(null);
 
 @Component({
   selector: 'app-side-nav-content',
   standalone: true,
   imports: [
+    EditPromptTitleComponent,
     NgClass,
     HlmButtonDirective,
-    HlmInputDirective,
     HlmIconComponent,
     CdkMenuTrigger,
     HlmMenuImports,
@@ -52,15 +51,7 @@ import { DeletePromptComponent } from './prompt-options/delete-prompt/delete-pro
   template: `
     @for (history of promptHistory(); track history.id) {
       @if (displayInlineEdit(history.id)) {
-        <input
-          #prompt
-          hlmInput
-          type="text"
-          [value]="history.title"
-          (blur)="handlePromptTitleEdit(history.id, prompt.value)"
-          (keydown.enter)="handlePromptTitleEdit(history.id, prompt.value)"
-          (keydown.esc)="handleKeydownEscape()"
-        />
+        <app-edit-prompt-title [id]="history.id" [title]="history.title" />
       } @else {
         <div class="group relative">
           <button
@@ -132,21 +123,10 @@ export class SideNavContentComponent {
   private geminiService = inject(GeminiService);
   protected promptHistory = this.geminiService.promptHistory;
   private selectedPromptId = this.geminiService.selectedPromptId;
-  private editPromptTitle = this.geminiService.editPromptTitle;
 
   protected menuState = signal(false);
 
-  protected inlineEditId = signal<number | null>(null);
-
-  private isEscaping = signal(false);
-
-  private prompt = viewChild<ElementRef<HTMLInputElement>>('prompt');
-
-  constructor() {
-    effect(() => {
-      this.prompt()?.nativeElement.focus();
-    });
-  }
+  protected inlineEditId = inlineEditId;
 
   protected handleClick(id: number): void {
     this.selectedPromptId.set(id);
@@ -166,18 +146,5 @@ export class SideNavContentComponent {
       context: { id, title },
       contentClass: 'flex',
     });
-  }
-
-  protected handlePromptTitleEdit(id: number, title: string): void {
-    if (!this.isEscaping()) {
-      this.editPromptTitle(id, title);
-      this.inlineEditId.set(null);
-    }
-    this.isEscaping.set(false);
-  }
-
-  protected handleKeydownEscape(): void {
-    this.isEscaping.set(true);
-    this.inlineEditId.set(null);
   }
 }
