@@ -18,10 +18,10 @@ import { GeminiService } from '../shared/gemini.service';
   ],
   providers: [provideIcons({ lucideBot })],
   host: {
-    class: 'flex min-h-[calc(100vh-3.5rem)] flex-col justify-between p-4',
+    class: 'flex min-h-[calc(100vh-3.5rem)] flex-col justify-between',
   },
   template: `
-    <div class="flex flex-col md:pb-9">
+    <div class="flex flex-col p-4 md:pb-9">
       @for (prompt of selectedPrompt()?.content; track $index) {
         @if (prompt.role === 'user') {
           <div class="flex justify-end py-2">
@@ -44,7 +44,7 @@ import { GeminiService } from '../shared/gemini.service';
         <p>No messages yet.</p>
       }
     </div>
-    <div class="sticky bottom-0">
+    <div class="sticky bottom-0 bg-background p-4">
       <form
         [formGroup]="form"
         (ngSubmit)="sendMessage()"
