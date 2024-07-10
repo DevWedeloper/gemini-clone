@@ -59,6 +59,7 @@ import { DeletePromptComponent } from './prompt-options/delete-prompt/delete-pro
           [value]="history.title"
           (focusout)="handlePromptTitleEdit(history.id, prompt.value)"
           (keydown.enter)="handlePromptTitleEdit(history.id, prompt.value)"
+          (keydown.esc)="handleKeydownEscape()"
         />
       } @else {
         <div class="group relative">
@@ -137,6 +138,8 @@ export class SideNavContentComponent {
 
   protected inlineEditId = signal<number | null>(null);
 
+  private isEscaping = signal(false);
+
   private prompt = viewChild<ElementRef<HTMLInputElement>>('prompt');
 
   constructor() {
@@ -166,7 +169,15 @@ export class SideNavContentComponent {
   }
 
   protected handlePromptTitleEdit(id: number, title: string): void {
-    this.editPromptTitle(id, title);
+    if (!this.isEscaping()) {
+      this.editPromptTitle(id, title);
+      this.inlineEditId.set(null);
+    }
+    this.isEscaping.set(false);
+  }
+
+  protected handleKeydownEscape(): void {
+    this.isEscaping.set(true);
     this.inlineEditId.set(null);
   }
 }
