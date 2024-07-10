@@ -42,7 +42,7 @@ export class GeminiService {
         this.updatePromptHistoryWithPrompt(
           state,
           this.userPrompt(message),
-          id || this.generateId(),
+          id ?? this.generateId(),
         ),
       );
     }
@@ -57,7 +57,7 @@ export class GeminiService {
           this.updatePromptHistoryWithPrompt(
             state,
             this.modelPrompt(data),
-            id || this.generateId(),
+            id ?? this.generateId(),
           ),
         );
         if (generateIdFlag) this.generateId.update((state) => state + 1);

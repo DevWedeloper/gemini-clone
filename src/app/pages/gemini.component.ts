@@ -92,7 +92,7 @@ export class GeminiComponent {
 
   protected sendMessage(): void {
     this.geminiService.sendMessage(
-      this.selectedPrompt()?.id || null,
+      this.selectedPrompt()?.id ?? null,
       this.form.getRawValue().message,
     );
     this.form.reset();
