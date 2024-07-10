@@ -37,13 +37,13 @@ export class EditPromptTitleComponent {
   title = input.required<string>();
 
   private isEscaping = signal(false);
-  private prompt = viewChild<ElementRef<HTMLInputElement>>('prompt');
+  private prompt = viewChild.required<ElementRef<HTMLInputElement>>('prompt');
 
   protected inlineEditId = inlineEditId;
 
   constructor() {
     effect(() => {
-      this.prompt()?.nativeElement.focus();
+      this.prompt().nativeElement.focus();
     });
   }
 
