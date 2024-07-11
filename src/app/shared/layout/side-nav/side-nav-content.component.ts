@@ -134,7 +134,10 @@ export class SideNavContentComponent {
   }
 
   protected displayOptions(id: number): boolean {
-    return this.selectedPromptId() === id && this.menuState();
+    return (
+      this.selectedPromptId() === id ||
+      (this.selectedPromptId() === id && this.menuState())
+    );
   }
 
   protected displayInlineEdit(id: number): boolean {
