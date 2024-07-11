@@ -28,7 +28,7 @@ import { from, map, of, switchMap } from 'rxjs';
 })
 export class ParsedTextComponent {
   text = input.required<string>();
-  marked = computed(() => {
+  private marked = computed(() => {
     const renderer = new marked.Renderer();
 
     renderer.heading = (text, level) => {
@@ -67,7 +67,7 @@ export class ParsedTextComponent {
     });
   });
 
-  parsedText = toSignal(
+  protected parsedText = toSignal(
     toObservable(this.text).pipe(
       map((value) => this.marked().parse(value || '')),
       switchMap((data) => (typeof data === 'string' ? of(data) : from(data))),
