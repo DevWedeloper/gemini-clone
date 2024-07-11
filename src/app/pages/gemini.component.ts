@@ -6,6 +6,7 @@ import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
 import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
 import { GeminiService } from '../shared/gemini.service';
+import { ParsedTextComponent } from './parsed-text.component';
 
 @Component({
   selector: 'app-gemini',
@@ -15,6 +16,7 @@ import { GeminiService } from '../shared/gemini.service';
     HlmButtonDirective,
     HlmInputDirective,
     HlmIconComponent,
+    ParsedTextComponent,
   ],
   providers: [provideIcons({ lucideBot })],
   host: {
@@ -36,7 +38,7 @@ import { GeminiService } from '../shared/gemini.service';
               <hlm-icon name="lucideBot" />
             </div>
             @for (part of prompt.parts; track $index) {
-              <p>{{ part.text }}</p>
+              <app-parsed-text [text]="part.text || ''" />
             }
           </div>
         }
