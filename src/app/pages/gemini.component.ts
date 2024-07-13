@@ -77,7 +77,15 @@ import { ParsedTextComponent } from './parsed-text.component';
             variant="ghost"
             type="button"
             (click)="toggleMic()"
+            class="relative"
           >
+            @if (isListening()) {
+              <div class="absolute flex items-center justify-center">
+                <span
+                  class="block h-6 w-6 animate-ping rounded-full bg-blue-500 opacity-75"
+                ></span>
+              </div>
+            }
             <hlm-icon name="lucideMic" size="sm" />
             <span class="sr-only">Use mic to start a new prompt</span>
           </button>
