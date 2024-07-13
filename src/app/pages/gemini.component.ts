@@ -1,11 +1,18 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
-import { lucideBot } from '@ng-icons/lucide';
+import { lucideBot, lucideMic } from '@ng-icons/lucide';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
 import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
 import { GeminiService } from '../shared/gemini.service';
+import { SpeechService } from '../shared/speech.service';
 import { ParsedTextComponent } from './parsed-text.component';
 
 @Component({
@@ -18,7 +25,7 @@ import { ParsedTextComponent } from './parsed-text.component';
     HlmIconComponent,
     ParsedTextComponent,
   ],
-  providers: [provideIcons({ lucideBot })],
+  providers: [provideIcons({ lucideBot, lucideMic })],
   host: {
     class: 'flex min-h-[calc(100vh-3.5rem)] flex-col justify-between',
   },
@@ -57,11 +64,23 @@ import { ParsedTextComponent } from './parsed-text.component';
           formControlName="message"
           hlmInput
           id="message"
-          placeholder="Type your message here..."
+          [placeholder]="
+            isListening() ? 'Listening...' : 'Type your message here...'
+          "
           class="min-h-12 w-full resize-none border-0 p-3 shadow-none focus-visible:ring-0"
           (keydown.enter)="handleTextareaEnter($event)"
         ></textarea>
         <div class="flex items-center p-3">
+          <button
+            hlmBtn
+            size="sm"
+            variant="ghost"
+            type="button"
+            (click)="toggleMic()"
+          >
+            <hlm-icon name="lucideMic" size="sm" />
+            <span class="sr-only">Use mic to start a new prompt</span>
+          </button>
           <button
             hlmBtn
             size="sm"
@@ -79,11 +98,23 @@ import { ParsedTextComponent } from './parsed-text.component';
 export class GeminiComponent {
   private fb = inject(FormBuilder);
   private geminiService = inject(GeminiService);
+  private speechService = inject(SpeechService);
+
   protected selectedPrompt = this.geminiService.selectedPrompt;
+  private transcript = this.speechService.transcript;
+
+  protected isListening = signal(false);
 
   protected form = this.fb.nonNullable.group({
     message: ['', Validators.required],
   });
+
+  constructor() {
+    effect(() => {
+      if (this.speechService.isListening())
+        this.form.controls.message.setValue(this.transcript());
+    });
+  }
 
   protected handleTextareaEnter(event: Event): void {
     event.preventDefault();
@@ -98,5 +129,13 @@ export class GeminiComponent {
       this.form.getRawValue().message,
     );
     this.form.reset();
+  }
+
+  protected toggleMic(): void {
+    this.isListening.set(!this.isListening());
+    if (this.isListening()) {
+      this.form.reset();
+      this.speechService.startListening();
+    } else this.speechService.stopListening();
   }
 }
