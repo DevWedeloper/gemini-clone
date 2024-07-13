@@ -57,7 +57,7 @@ export class SideNavComponent {
       ? 'translate-x-0'
       : '-translate-x-full';
     return hlm(
-      'inset-0 z-30 hidden w-full px-3 transition ease-in-out md:sticky md:block',
+      'inset-0 z-30 hidden w-0 px-3 transition ease-in-out md:sticky md:block md:w-[220px] lg:w-[240px]',
       translateX,
       this.userClass(),
     );
