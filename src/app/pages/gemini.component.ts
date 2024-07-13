@@ -11,6 +11,7 @@ import { lucideBot, lucideMic } from '@ng-icons/lucide';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
 import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
+import { hlmMuted } from '@spartan-ng/ui-typography-helm';
 import { GeminiService } from '../shared/gemini.service';
 import { SpeechService } from '../shared/speech.service';
 import { ParsedTextComponent } from './parsed-text.component';
@@ -99,6 +100,9 @@ import { ParsedTextComponent } from './parsed-text.component';
           </button>
         </div>
       </form>
+      <p class="${hlmMuted} mt-2 text-center">
+        Prompt history is stored only in memory.
+      </p>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
