@@ -15,7 +15,11 @@ import {
 })
 export class SpeechService {
   private recognition = computed(() => {
-    if (typeof window === 'undefined') return;
+    if (
+      typeof webkitSpeechRecognition === 'undefined' &&
+      typeof SpeechRecognition === 'undefined'
+    )
+      return;
 
     const recognition = new (webkitSpeechRecognition || SpeechRecognition)();
     recognition.continuous = true;
