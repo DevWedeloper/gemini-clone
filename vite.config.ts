@@ -29,6 +29,7 @@ export default defineConfig(({ mode }) => ({
       '@spartan-ng/**',
       '@ng-icons/**',
       'ngx-scrollbar',
+      'ngx-sonner',
     ],
   },
   plugins: [
