@@ -7,11 +7,12 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
-import { lucideBot, lucideMic } from '@ng-icons/lucide';
+import { lucideBot, lucideMic, lucideMicOff } from '@ng-icons/lucide';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
 import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
 import { hlmH1, hlmMuted } from '@spartan-ng/ui-typography-helm';
+import { toast } from 'ngx-sonner';
 import { GeminiService } from '../shared/gemini.service';
 import { SpeechService } from '../shared/speech.service';
 import { ParsedTextComponent } from './parsed-text.component';
@@ -26,7 +27,7 @@ import { ParsedTextComponent } from './parsed-text.component';
     HlmIconComponent,
     ParsedTextComponent,
   ],
-  providers: [provideIcons({ lucideBot, lucideMic })],
+  providers: [provideIcons({ lucideBot, lucideMic, lucideMicOff })],
   host: {
     class: 'flex min-h-[calc(100vh-3.5rem)] flex-col justify-between',
   },
@@ -66,7 +67,7 @@ import { ParsedTextComponent } from './parsed-text.component';
           hlmInput
           id="message"
           [placeholder]="
-            isListening() ? 'Listening...' : 'Type your message here...'
+            displayListening() ? 'Listening...' : 'Type your message here...'
           "
           class="min-h-12 w-full resize-none border-0 p-3 shadow-none focus-visible:ring-0"
           (keydown.enter)="handleTextareaEnter($event)"
@@ -80,14 +81,17 @@ import { ParsedTextComponent } from './parsed-text.component';
             (click)="toggleMic()"
             class="relative"
           >
-            @if (isListening()) {
+            @if (displayListening()) {
               <div class="absolute flex items-center justify-center">
                 <span
                   class="block h-6 w-6 animate-ping rounded-full bg-blue-500 opacity-75"
                 ></span>
               </div>
             }
-            <hlm-icon name="lucideMic" size="sm" />
+            <hlm-icon
+              [name]="notAllowedError() ? 'lucideMicOff' : ' lucideMic'"
+              size="sm"
+            />
             <span class="sr-only">Use mic to start a new prompt</span>
           </button>
           <button
@@ -114,6 +118,9 @@ export class GeminiComponent {
 
   protected selectedPrompt = this.geminiService.selectedPrompt;
   private transcript = this.speechService.transcript;
+  private noError = this.speechService.noError;
+  protected notAllowedError = this.speechService.notAllowedError;
+  private notAllowedError$ = this.speechService.notAllowedError$;
 
   protected isListening = signal(false);
 
@@ -126,6 +133,15 @@ export class GeminiComponent {
       if (this.speechService.isListening())
         this.form.controls.message.setValue(this.transcript());
     });
+    this.notAllowedError$.subscribe(() =>
+      toast.warning('Unable to access the microphone. Please check settings.', {
+        action: {
+          label: 'Dismiss',
+          onClick: () => console.log('Dismiss'),
+        },
+        position: 'bottom-center',
+      }),
+    );
   }
 
   protected handleTextareaEnter(event: Event): void {
@@ -149,5 +165,9 @@ export class GeminiComponent {
       this.form.reset();
       this.speechService.startListening();
     } else this.speechService.stopListening();
+  }
+
+  protected displayListening(): boolean {
+    return this.isListening() && this.noError();
   }
 }

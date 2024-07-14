@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { hlm } from '@spartan-ng/ui-core';
+import { HlmToasterComponent } from '@spartan-ng/ui-sonner-helm';
 import { HeaderComponent } from './shared/header/header.component';
 import {
   SideNavComponent,
@@ -10,7 +11,12 @@ import {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, SideNavComponent, HeaderComponent],
+  imports: [
+    RouterOutlet,
+    SideNavComponent,
+    HeaderComponent,
+    HlmToasterComponent,
+  ],
   host: {
     '[class]': 'computedClass()',
   },
@@ -20,6 +26,7 @@ import {
       <app-header />
       <router-outlet />
     </main>
+    <hlm-toaster />
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

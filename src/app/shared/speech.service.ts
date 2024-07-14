@@ -3,7 +3,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import {
   BehaviorSubject,
   distinctUntilChanged,
+  filter,
   map,
+  merge,
   scan,
   startWith,
   Subject,
@@ -31,6 +33,7 @@ export class SpeechService {
 
   private isListening$ = new BehaviorSubject(false);
   private interimScript$ = new Subject<string>();
+  private error$ = new Subject<SpeechRecognitionErrorCode | null>();
 
   private transcript$ = this.isListening$.pipe(
     switchMap(() =>
@@ -52,11 +55,35 @@ export class SpeechService {
     map((data) => data.join(' ')),
   );
 
+  private status$ = merge(
+    this.interimScript$.pipe(map(() => 'success' as const)),
+    this.error$.pipe(
+      map((error) => (error ? ('error' as const) : ('success' as const))),
+    ),
+  ).pipe(startWith('initial' as const));
+
+  private status = toSignal(this.status$, { initialValue: 'initial' });
+
+  private error = toSignal(this.error$, { initialValue: null });
+
   transcript = toSignal(this.transcript$, {
     initialValue: '',
   });
 
   isListening = toSignal(this.isListening$, { initialValue: false });
+
+  noError = computed(() => {
+    return this.status() !== 'error';
+  });
+
+  notAllowedError = computed(() => {
+    return this.error() === 'not-allowed';
+  });
+
+  notAllowedError$ = this.error$.pipe(
+    map((error) => error === 'not-allowed'),
+    filter(Boolean),
+  );
 
   startListening(): void {
     if (this.isListening$.value || !this.recognition()) return;
@@ -71,8 +98,16 @@ export class SpeechService {
       this.interimScript$.next(interimTranscript);
     };
 
+    this.recognition()!.onstart = () => {
+      this.isListening$.next(true);
+      this.error$.next(null);
+    };
+
+    this.recognition()!.onerror = (event: SpeechRecognitionErrorEvent) => {
+      this.error$.next(event.error);
+    };
+
     this.recognition()!.start();
-    this.isListening$.next(true);
   }
 
   stopListening(): void {
