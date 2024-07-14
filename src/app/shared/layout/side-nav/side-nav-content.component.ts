@@ -46,7 +46,7 @@ export const inlineEditId = signal<number | null>(null);
     provideIcons({ ionEllipsisHorizontal, lucidePencil, lucideTrash2 }),
   ],
   host: {
-    class: 'flex flex-col',
+    class: 'flex h-[calc(100%-3.5rem)] flex-col',
   },
   template: `
     @for (history of promptHistory(); track history.id) {
@@ -111,7 +111,9 @@ export const inlineEditId = signal<number | null>(null);
         </hlm-menu>
       </ng-template>
     } @empty {
-      <p>No messages yet.</p>
+      <div class="flex h-full items-center justify-center">
+        <h4>No prompt history available.</h4>
+      </div>
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
