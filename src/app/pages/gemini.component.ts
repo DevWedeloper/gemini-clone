@@ -137,7 +137,7 @@ export class GeminiComponent {
       toast.warning('Unable to access the microphone. Please check settings.', {
         action: {
           label: 'Dismiss',
-          onClick: () => console.log('Dismiss'),
+          onClick: () => {},
         },
         position: 'bottom-center',
       }),
