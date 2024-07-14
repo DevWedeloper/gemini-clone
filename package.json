@@ -50,6 +50,7 @@
     "marked-highlight": "^2.0.1",
     "marked-mangle": "^1.1.7",
     "ngx-scrollbar": "^13.0.1",
+    "ngx-sonner": "^2.0.0",
     "prismjs": "^1.29.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
