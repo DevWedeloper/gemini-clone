@@ -6,3 +6,4 @@ Access and interact with the Gemini API.
 
 - Prompt history is saved in memory.
 - Ability to make prompts using your microphone.
+- Streaming responses for a more dynamic interaction.
