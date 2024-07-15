@@ -49,20 +49,20 @@ export class GeminiService {
   generateId = signal(0);
 
   sendMessage(id: number | null, message: string): void {
-    let generateIdFlag = false;
+    console.log('here');
     const selectedId = id ?? this.generateId();
     if (id === null) {
       this.promptHistory.update((state) => [
         ...state,
         {
-          id: this.generateId(),
+          id: selectedId,
           title: message,
           content: [this.userPrompt(message)],
         },
       ]);
-      this.selectedPromptId.set(this.generateId());
-      generateIdFlag = true;
-    } else if (this.selectedPrompt()) {
+      this.selectedPromptId.set(selectedId);
+      this.generateId.update((state) => state + 1);
+    } else {
       this.promptHistory.update((state) =>
         this.updatePromptHistoryWithPrompt(
           state,
@@ -85,7 +85,6 @@ export class GeminiService {
           ),
         ),
       );
-    if (generateIdFlag) this.generateId.update((state) => state + 1);
   }
 
   deletePrompt(id: number): void {
