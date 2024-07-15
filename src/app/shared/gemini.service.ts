@@ -49,7 +49,6 @@ export class GeminiService {
   generateId = signal(0);
 
   sendMessage(id: number | null, message: string): void {
-    console.log('here');
     const selectedId = id ?? this.generateId();
     if (id === null) {
       this.promptHistory.update((state) => [
