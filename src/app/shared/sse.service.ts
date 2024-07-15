@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Content } from '@google/generative-ai';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +15,7 @@ export class SseService {
     data: string;
   }> {
     return new Observable((observer) => {
-      fetch('http://localhost:5173/api/get-reply', {
+      fetch(`${environment.api}/get-reply`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
