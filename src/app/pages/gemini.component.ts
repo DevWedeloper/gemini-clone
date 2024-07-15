@@ -117,6 +117,7 @@ export class GeminiComponent {
   private speechService = inject(SpeechService);
 
   protected selectedPrompt = this.geminiService.selectedPrompt;
+  private selectedPromptId = this.geminiService.selectedPromptId;
   private transcript = this.speechService.transcript;
   private noError = this.speechService.noError;
   protected notAllowedError = this.speechService.notAllowedError;
@@ -129,6 +130,10 @@ export class GeminiComponent {
   });
 
   constructor() {
+    effect(() => {
+      if (this.selectedPromptId() || !this.selectedPromptId())
+        this.form.reset();
+    });
     effect(() => {
       if (this.speechService.isListening())
         this.form.controls.message.setValue(this.transcript());
