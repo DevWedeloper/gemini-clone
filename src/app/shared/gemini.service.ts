@@ -58,7 +58,7 @@ export class GeminiService {
     switchMap(({ message, history, id }) =>
       this.sseService
         .createEventSource(message, history)
-        .pipe(map((data) => ({ ...data, status: data.id, id }))),
+        .pipe(map((data) => ({ ...data, status: data.status, id }))),
     ),
   );
 

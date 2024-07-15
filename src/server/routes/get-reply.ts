@@ -36,11 +36,11 @@ export default defineEventHandler(async (event) => {
   const eventStream = createEventStream(event);
 
   getReplyTest(chat, history, async (chunkText) => {
-    await eventStream.push(JSON.stringify({ id: 'message', data: chunkText }));
+    await eventStream.push(JSON.stringify({ status: 'message', data: chunkText }));
   }).then(async () => {
     await eventStream.push(
       JSON.stringify({
-        id: 'completion',
+        status: 'completion',
         data: 'Streaming complete.',
       }),
     );

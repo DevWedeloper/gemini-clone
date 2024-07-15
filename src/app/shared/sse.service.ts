@@ -11,7 +11,7 @@ export class SseService {
     chat: string,
     history: Content[],
   ): Observable<{
-    id: string;
+    status: string;
     data: string;
   }> {
     return new Observable((observer) => {
