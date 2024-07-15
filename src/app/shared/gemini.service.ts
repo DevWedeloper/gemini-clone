@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Content } from '@google/generative-ai';
-import { distinctUntilChanged, scan, Subject, takeWhile } from 'rxjs';
+import { map, scan, Subject, switchMap, takeWhile, tap } from 'rxjs';
 import { SseService } from './sse.service';
 
 type PromptHistory = {
@@ -15,27 +15,72 @@ type PromptHistory = {
 export class GeminiService {
   private sseService = inject(SseService);
 
-  dataChunk$ = new Subject<{
-    id: string;
-    data: string;
+  private sendMessage$ = new Subject<{
+    id: number | null;
+    message: string;
   }>();
 
-  data$ = this.dataChunk$.pipe(
+  private dataChunk$ = this.sendMessage$.pipe(
+    map(({ id, message }) => ({
+      id: id ?? this.generateId(),
+      message,
+      newPrompt: id === null,
+    })),
+    tap(({ id, message, newPrompt }) => {
+      if (newPrompt) {
+        this.promptHistory.update((state) => [
+          ...state,
+          {
+            id: id,
+            title: message,
+            content: [this.userPrompt(message)],
+          },
+        ]);
+        this.selectedPromptId.set(id);
+        this.generateId.update((state) => state + 1);
+      } else {
+        this.promptHistory.update((state) =>
+          this.updatePromptHistoryWithPrompt(
+            state,
+            this.userPrompt(message),
+            id,
+          ),
+        );
+      }
+    }),
+    map(({ id, message }) => ({
+      message,
+      history:
+        this.promptHistory().find((history) => history.id === id)?.content ??
+        [],
+      id,
+    })),
+    switchMap(({ message, history, id }) =>
+      this.sseService
+        .createEventSource(message, history)
+        .pipe(map((data) => ({ ...data, status: data.id, id }))),
+    ),
+  );
+
+  private data$ = this.dataChunk$.pipe(
     scan(
       (state, chunk) => {
-        if (chunk.id !== 'completion') {
-          return { ...state, id: chunk.id, data: state.data + chunk.data };
+        if (chunk.status !== 'completion') {
+          return {
+            ...state,
+            data: state.data + chunk.data,
+            status: chunk.status,
+            id: chunk.id,
+          };
         } else {
-          return { ...state, id: chunk.id };
+          return { ...state, status: chunk.status };
         }
       },
       {
-        id: '',
         data: '',
+        status: '',
+        id: 0,
       },
-    ),
-    distinctUntilChanged(
-      (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
     ),
   );
 
@@ -48,42 +93,21 @@ export class GeminiService {
   );
   generateId = signal(0);
 
-  sendMessage(id: number | null, message: string): void {
-    const selectedId = id ?? this.generateId();
-    if (id === null) {
-      this.promptHistory.update((state) => [
-        ...state,
-        {
-          id: selectedId,
-          title: message,
-          content: [this.userPrompt(message)],
-        },
-      ]);
-      this.selectedPromptId.set(selectedId);
-      this.generateId.update((state) => state + 1);
-    } else {
-      this.promptHistory.update((state) =>
-        this.updatePromptHistoryWithPrompt(
-          state,
-          this.userPrompt(message),
-          selectedId,
-        ),
-      );
-    }
-    this.sseService.createEventSource(message, []).subscribe((data) => {
-      this.dataChunk$.next(data);
+  constructor() {
+    this.data$.subscribe((data) => {
+      console.log(data);
     });
+  }
+
+  sendMessage(id: number | null, message: string): void {
     this.data$
-      .pipe(takeWhile((data) => data.id !== 'completion'))
-      .subscribe((data) =>
+      .pipe(takeWhile((data) => data.status !== 'completion'))
+      .subscribe(({ data, id }) =>
         this.promptHistory.update((state) =>
-          this.updatePromptHistoryWithPrompt(
-            state,
-            this.modelPrompt(data.data),
-            selectedId,
-          ),
+          this.updatePromptHistoryWithPrompt(state, this.modelPrompt(data), id),
         ),
       );
+    this.sendMessage$.next({ id, message });
   }
 
   deletePrompt(id: number): void {
