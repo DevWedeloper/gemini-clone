@@ -1,3 +1,3 @@
 export const environment = {
-  api: 'https://gemini-clone-devwedeloper.vercel.app/api',
+  api: 'https://gemini-clone-devwedeloper.vercel.app',
 };
