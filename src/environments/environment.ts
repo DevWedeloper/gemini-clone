@@ -1,3 +1,3 @@
 export const environment = {
-  api: import.meta.env['API'] as string,
+  api: import.meta.env['VITE_API'] as string,
 };
