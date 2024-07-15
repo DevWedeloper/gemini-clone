@@ -93,12 +93,6 @@ export class GeminiService {
   );
   generateId = signal(0);
 
-  constructor() {
-    this.data$.subscribe((data) => {
-      console.log(data);
-    });
-  }
-
   sendMessage(id: number | null, message: string): void {
     this.data$
       .pipe(takeWhile((data) => data.status !== 'completion'))
