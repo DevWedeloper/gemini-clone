@@ -1,3 +1,3 @@
 export const environment = {
-  api: 'http://localhost:5173/api',
+  api: import.meta.env['API'] as string,
 };
