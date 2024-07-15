@@ -1,7 +1,7 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { Content } from '@google/generative-ai';
-import { take } from 'rxjs';
-import { injectTrpcClient } from 'src/trpc-client';
+import { distinctUntilChanged, scan, Subject, takeWhile } from 'rxjs';
+import { SseService } from './sse.service';
 
 type PromptHistory = {
   id: number;
@@ -13,7 +13,31 @@ type PromptHistory = {
   providedIn: 'root',
 })
 export class GeminiService {
-  private _trpc = injectTrpcClient();
+  private sseService = inject(SseService);
+
+  dataChunk$ = new Subject<{
+    id: string;
+    data: string;
+  }>();
+
+  data$ = this.dataChunk$.pipe(
+    scan(
+      (state, chunk) => {
+        if (chunk.id !== 'completion') {
+          return { ...state, id: chunk.id, data: state.data + chunk.data };
+        } else {
+          return { ...state, id: chunk.id };
+        }
+      },
+      {
+        id: '',
+        data: '',
+      },
+    ),
+    distinctUntilChanged(
+      (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+    ),
+  );
 
   promptHistory = signal<PromptHistory[]>([]);
   selectedPromptId = signal<number | null>(null);
@@ -26,7 +50,8 @@ export class GeminiService {
 
   sendMessage(id: number | null, message: string): void {
     let generateIdFlag = false;
-    if (this.selectedPromptId() === null) {
+    const selectedId = id ?? this.generateId();
+    if (id === null) {
       this.promptHistory.update((state) => [
         ...state,
         {
@@ -42,26 +67,25 @@ export class GeminiService {
         this.updatePromptHistoryWithPrompt(
           state,
           this.userPrompt(message),
-          id ?? this.generateId(),
+          selectedId,
         ),
       );
     }
-    this._trpc.gemini.chat
-      .mutate({
-        chat: message,
-        history: this.selectedPrompt()?.content || [],
-      })
-      .pipe(take(1))
-      .subscribe((data) => {
+    this.sseService.createEventSource(message, []).subscribe((data) => {
+      this.dataChunk$.next(data);
+    });
+    this.data$
+      .pipe(takeWhile((data) => data.id !== 'completion'))
+      .subscribe((data) =>
         this.promptHistory.update((state) =>
           this.updatePromptHistoryWithPrompt(
             state,
-            this.modelPrompt(data),
-            id ?? this.generateId(),
+            this.modelPrompt(data.data),
+            selectedId,
           ),
-        );
-        if (generateIdFlag) this.generateId.update((state) => state + 1);
-      });
+        ),
+      );
+    if (generateIdFlag) this.generateId.update((state) => state + 1);
   }
 
   deletePrompt(id: number): void {
@@ -98,13 +122,22 @@ export class GeminiService {
     prompt: Content,
     id: number,
   ): PromptHistory[] {
-    return promptHistory.map((history) =>
-      history.id === id
-        ? {
+    return promptHistory.map((history) => {
+      if (history.id === id) {
+        const lastItem = history.content[history.content.length - 1];
+        if (lastItem.role === 'model' && prompt.role !== 'user') {
+          return {
             ...history,
-            content: [...history.content, prompt],
-          }
-        : history,
-    );
+            content: [...history.content.slice(0, -1), prompt],
+          };
+        }
+        return {
+          ...history,
+          content: [...history.content, prompt],
+        };
+      } else {
+        return history;
+      }
+    });
   }
 }
