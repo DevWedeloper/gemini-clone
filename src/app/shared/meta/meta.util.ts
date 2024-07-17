@@ -13,7 +13,7 @@ export const metaWith = (title: string, description: string) => [
   },
   {
     property: 'og:site_name',
-    content: 'Angular Form Builder',
+    content: 'Gemini Clone',
   },
   {
     property: 'og:type',
