@@ -1,6 +1,17 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Content } from '@google/generative-ai';
-import { map, scan, Subject, switchMap, takeWhile, tap } from 'rxjs';
+import {
+  concatMap,
+  delay,
+  distinctUntilChanged,
+  map,
+  of,
+  scan,
+  Subject,
+  switchMap,
+  takeWhile,
+  tap,
+} from 'rxjs';
 import { SseService } from './sse.service';
 
 type PromptHistory = {
@@ -60,6 +71,20 @@ export class GeminiService {
         .createEventSource(message, history)
         .pipe(map((data) => ({ ...data, status: data.status, id }))),
     ),
+    concatMap((data) => {
+      const words = data.data.split(/(\s+)/).filter(Boolean);
+      return of(...words).pipe(
+        concatMap((word) =>
+          of(word).pipe(
+            delay(30),
+            map((currentWord) => ({
+              ...data,
+              data: currentWord,
+            })),
+          ),
+        ),
+      );
+    }),
   );
 
   private data$ = this.dataChunk$.pipe(
@@ -82,6 +107,9 @@ export class GeminiService {
         id: 0,
       },
     ),
+    distinctUntilChanged(
+      (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+    ),
   );
 
   promptHistory = signal<PromptHistory[]>([]);
@@ -96,11 +124,11 @@ export class GeminiService {
   sendMessage(id: number | null, message: string): void {
     this.data$
       .pipe(takeWhile((data) => data.status !== 'completion'))
-      .subscribe(({ data, id }) =>
+      .subscribe(({ data, id }) => {
         this.promptHistory.update((state) =>
           this.updatePromptHistoryWithPrompt(state, this.modelPrompt(data), id),
-        ),
-      );
+        );
+      });
     this.sendMessage$.next({ id, message });
   }
 
