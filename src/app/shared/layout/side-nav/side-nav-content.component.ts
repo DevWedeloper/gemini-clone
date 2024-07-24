@@ -1,4 +1,3 @@
-import { CdkMenuTrigger } from '@angular/cdk/menu';
 import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -13,6 +12,7 @@ import { lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import { HlmDialogService } from '@spartan-ng/ui-dialog-helm';
 import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
+import { BrnMenuTriggerDirective } from '@spartan-ng/ui-menu-brain';
 import { HlmMenuComponent, HlmMenuImports } from '@spartan-ng/ui-menu-helm';
 import { BrnTooltipContentDirective } from '@spartan-ng/ui-tooltip-brain';
 import {
@@ -33,7 +33,7 @@ export const inlineEditId = signal<number | null>(null);
     NgClass,
     HlmButtonDirective,
     HlmIconComponent,
-    CdkMenuTrigger,
+    BrnMenuTriggerDirective,
     HlmMenuImports,
     HlmButtonDirective,
     HlmIconComponent,
@@ -69,7 +69,7 @@ export const inlineEditId = signal<number | null>(null);
               size="sm"
               variant="ghost"
               hlmBtn
-              [cdkMenuTriggerFor]="optionsTpl"
+              [brnMenuTriggerFor]="optionsTpl"
               class="absolute right-0 top-1/2 w-fit -translate-y-1/2 group-hover:inline-flex"
               [ngClass]="displayOptions(history.id) ? 'inline-flex' : 'hidden'"
               (cdkMenuOpened)="menuState.set(true)"
