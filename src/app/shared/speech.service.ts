@@ -72,13 +72,9 @@ export class SpeechService {
 
   isListening = toSignal(this.isListening$, { initialValue: false });
 
-  noError = computed(() => {
-    return this.status() !== 'error';
-  });
+  noError = computed(() => this.status() !== 'error');
 
-  notAllowedError = computed(() => {
-    return this.error() === 'not-allowed';
-  });
+  notAllowedError = computed(() => this.error() === 'not-allowed');
 
   notAllowedError$ = this.error$.pipe(
     map((error) => error === 'not-allowed'),
