@@ -118,6 +118,7 @@ export class GeminiComponent {
 
   protected selectedPrompt = this.geminiService.selectedPrompt;
   private selectedPromptId = this.geminiService.selectedPromptId;
+  private error$ = this.geminiService.errorStatus$;
   private transcript = this.speechService.transcript;
   private noError = this.speechService.noError;
   protected notAllowedError = this.speechService.notAllowedError;
@@ -130,6 +131,18 @@ export class GeminiComponent {
   });
 
   constructor() {
+    this.error$.subscribe(() =>
+      toast.error(
+        'An error has occurred while trying to communicate with the Gemini API.',
+        {
+          action: {
+            label: 'Dismiss',
+            onClick: () => {},
+          },
+          position: 'bottom-center',
+        },
+      ),
+    );
     effect(() => {
       if (this.selectedPromptId() || !this.selectedPromptId())
         this.form.reset();

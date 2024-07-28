@@ -1,12 +1,18 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Content } from '@google/generative-ai';
 import {
+  catchError,
   concatMap,
   delay,
   distinctUntilChanged,
+  EMPTY,
+  filter,
   map,
+  merge,
   of,
   scan,
+  shareReplay,
+  startWith,
   Subject,
   switchMap,
   takeWhile,
@@ -25,6 +31,8 @@ type PromptHistory = {
 })
 export class GeminiService {
   private sseService = inject(SseService);
+
+  private error$ = new Subject<void>();
 
   private sendMessage$ = new Subject<{
     id: number | null;
@@ -67,9 +75,13 @@ export class GeminiService {
       id,
     })),
     switchMap(({ message, history, id }) =>
-      this.sseService
-        .createEventSource(message, history)
-        .pipe(map((data) => ({ ...data, status: data.status, id }))),
+      this.sseService.createEventSource(message, history).pipe(
+        map((data) => ({ ...data, status: data.status, id })),
+        catchError(() => {
+          this.error$.next();
+          return EMPTY;
+        }),
+      ),
     ),
     concatMap((data) => {
       const words = data.data.split(/(\s+)/).filter(Boolean);
@@ -110,6 +122,23 @@ export class GeminiService {
     distinctUntilChanged(
       (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
     ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  private status$ = merge(
+    this.data$.pipe(
+      map((data) =>
+        data.status === 'completion'
+          ? ('complete' as const)
+          : ('ongoing' as const),
+      ),
+    ),
+    this.error$.pipe(map(() => 'error' as const)),
+  ).pipe(startWith('initial' as const), shareReplay(1));
+
+  errorStatus$ = this.status$.pipe(
+    map((status) => status === 'error'),
+    filter(Boolean),
   );
 
   promptHistory = signal<PromptHistory[]>([]);
