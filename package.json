@@ -74,6 +74,7 @@
     "@types/dom-speech-recognition": "^0.0.4",
     "@types/markdown-it": "^14.1.2",
     "@types/marked": "^6.0.0",
+    "@types/node": "^22.0.2",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",
     "autoprefixer": "^10.4.14",
