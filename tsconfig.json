@@ -23,7 +23,8 @@
     ],
     "types": [
       "vitest/globals",
-      "dom-speech-recognition"
+      "dom-speech-recognition",
+      "node"
     ],
     "useDefineForClassFields": false,
     "skipLibCheck": true,
