@@ -11,6 +11,7 @@ import {
   merge,
   of,
   scan,
+  share,
   shareReplay,
   startWith,
   Subject,
@@ -110,7 +111,7 @@ export class GeminiService {
             id: chunk.id,
           };
         } else {
-          return { ...state, status: chunk.status };
+          return { ...state, data: '', status: chunk.status };
         }
       },
       {
@@ -122,7 +123,7 @@ export class GeminiService {
     distinctUntilChanged(
       (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
     ),
-    shareReplay({ bufferSize: 1, refCount: true }),
+    share(),
   );
 
   private status$ = merge(
