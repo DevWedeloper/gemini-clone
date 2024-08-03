@@ -2,11 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
-  ElementRef,
   input,
-  viewChild,
 } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
   hlmBlockquote,
   hlmCode,
@@ -17,65 +15,66 @@ import {
   hlmP,
   hlmUl,
 } from '@spartan-ng/ui-typography-helm';
-import * as IncrementalDOM from 'incremental-dom';
-import MarkdownIt from 'markdown-it';
-// @ts-ignore
-import MarkdownItIncrementalDOM from 'markdown-it-incremental-dom';
+import { marked } from 'marked';
+import { from, map, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-parsed-text',
   standalone: true,
   template: `
-    <div #content></div>
+    <div [innerHTML]="parsedText()"></div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ParsedTextComponent {
   text = input.required<string>();
 
-  private content = viewChild.required<ElementRef<HTMLDivElement>>('content');
+  private marked = computed(() => {
+    const renderer = new marked.Renderer();
 
-  private md = computed(() => {
-    const md = new MarkdownIt().use(MarkdownItIncrementalDOM, IncrementalDOM);
-
-    md.renderer.rules['heading_open'] = (tokens, idx) => {
-      const level = parseInt(tokens[idx].tag.substr(1), 10);
+    renderer.heading = (text, level) => {
       switch (level) {
         case 1:
-          return `<h1 class="${hlmH1}">`;
+          return `<h1 class="${hlmH1}">${text}</h1>`;
         case 2:
-          return `<h2 class="${hlmH2}">`;
+          return `<h2 class="${hlmH2}">${text}</h2>`;
         case 3:
-          return `<h3 class="${hlmH3}">`;
+          return `<h3 class="${hlmH3}">${text}</h3>`;
         case 4:
-          return `<h4 class="${hlmH4}">`;
+          return `<h4 class="${hlmH4}">${text}</h4>`;
         default:
-          return `<h${level}>`;
+          return `<h${level}>${text}</h${level}>`;
       }
     };
 
-    md.renderer.rules['paragraph_open'] = () => `<p class="${hlmP}">`;
-    md.renderer.rules['paragraph_close'] = () => '</p>';
+    renderer.paragraph = (text) => {
+      return `<p class="${hlmP}">${text}</p>`;
+    };
 
-    md.renderer.rules['blockquote_open'] = () =>
-      `<blockquote class="${hlmBlockquote}">`;
+    renderer.blockquote = (text) => {
+      return `<blockquote class="${hlmBlockquote}">${text}</blockquote>`;
+    };
 
-    md.renderer.rules['bullet_list_open'] = () => `<ul class="${hlmUl}">`;
+    renderer.list = (body) => {
+      return `<ul class="${hlmUl}">${body}</ul>`;
+    };
 
-    md.renderer.rules['ordered_list_open'] = () => `<ol class="${hlmUl}">`;
+    renderer.code = (text) => {
+      return `<pre><code class="${hlmCode}">${text}</code></pre>`;
+    };
 
-    md.renderer.rules.code_block = (tokens, idx) =>
-      `<pre><code class="${hlmCode}">${tokens[idx].content}</code></pre>`;
-
-    return md;
+    return marked.use({
+      renderer,
+    });
   });
 
-  constructor() {
-    effect(() =>
-      IncrementalDOM.patch(
-        this.content().nativeElement,
-        (this.md() as any).renderToIncrementalDOM(this.text()),
-      ),
-    );
-  }
+  protected parsedText = toSignal(
+    toObservable(this.text).pipe(
+      map((value) => this.marked().parse(value || '')),
+      switchMap((data) => (typeof data === 'string' ? of(data) : from(data))),
+    ),
+    {
+      initialValue: '',
+    },
+  );
 }
